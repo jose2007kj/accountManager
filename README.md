@@ -3,7 +3,7 @@
 
 ## Getting started
 
-`$ npm install react-native-account-manager --save`
+`$ npm install git+https://git@github.com/jose2007kj/accountManager.git --save`
 
 ### Mostly automatic installation
 
@@ -26,13 +26,22 @@
   	```
       compile project(':react-native-account-manager')
   	```
+4. Insert the following permision in `android/src/app/main/androidmanifest.xml`:
+  	```
+      <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+  	```
 
 
 ## Usage
 ```javascript
 import RNAccountManager from 'react-native-account-manager';
 
-// TODO: What to do with the module?
-RNAccountManager;
+// TODO: What to do with the module? this print all account info like in this question https://stackoverflow.com/questions/13244130/how-to-list-out-all-the-accounts-facebook-twitter-gmail-etc-in-android
+ RNAccountManager.getAccounts().then(account => {
+            console.log('account info'+account.account);
+            })
+            .catch(error => {
+              console.log(error)
+            })
 ```
   
