@@ -6,6 +6,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import android.accounts.Account;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import android.accounts.AccountManager;
 
 public class RNAccountManagerModule extends ReactContextBaseJavaModule {
@@ -31,7 +34,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
 				s += acc[i] + "\n";
 			}
 			
-
+      final WritableMap map = Arguments.createMap();
 		try {
                             map.putString("account", s);
                             
