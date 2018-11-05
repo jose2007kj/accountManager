@@ -41,4 +41,5 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
 	}
+  }
 }
