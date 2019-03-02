@@ -15,8 +15,13 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.net.Uri;
+import java.net.URL;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import android.database.DatabaseUtils;
-
+import java.net.URLConnection;
 import android.provider.ContactsContract.PhoneLookup;
 public class RNAccountManagerModule extends ReactContextBaseJavaModule {
 
@@ -32,17 +37,17 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
     return "RNAccountManager";
   }
   @ReactMethod
-	public void getAccounts(final Promise promise) {
-		AccountManager am = AccountManager.get(this.reactContext);
-	  Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
-		if (acc.length > 0){
-			String s = "";
-			for (int i=0; i<acc.length; i++){
-				s += acc[i] + "\n";
-			}
-			final WritableMap map = Arguments.createMap();
+    public void getAccounts(final Promise promise) {
+        AccountManager am = AccountManager.get(this.reactContext);
+      Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
+        if (acc.length > 0){
+            String s = "";
+            for (int i=0; i<acc.length; i++){
+                s += acc[i] + "\n";
+            }
+            final WritableMap map = Arguments.createMap();
 
-		try {
+        try {
                             map.putString("account", s);
                             
                             promise.resolve(map);
@@ -50,7 +55,29 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             map.putString("account", "COULD_NOT_FETCH");
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
-	}
+    }
+  }
+
+  @ReactMethod
+    public void checkAccounts(final Promise promise) {
+        AccountManager am = AccountManager.get(this.reactContext);
+      Account [] acc = am.getAccounts();//am.getAccountsByType("com.google");
+        if (acc.length > 0){
+            String s = "";
+            for (int i=0; i<acc.length; i++){
+                s += acc[i] + "\n";
+            }
+            final WritableMap map = Arguments.createMap();
+
+        try {
+                            map.putString("account", s);
+                            
+                            promise.resolve(map);
+                        } catch (Exception e) {
+                            map.putString("account", "COULD_NOT_FETCH");
+                            promise.reject("COULD_NOT_FETCH", map.toString());
+                        }
+    }
   }
 
   
@@ -94,6 +121,41 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
         map.putString("contact","false");
         promise.resolve(map);}
 }
+// function for converting url to base64
 
+@ReactMethod
+public void urlTobase64(String url, Promise promise) {
+  try {
+    URL imageUrl = new URL(url);
+    URLConnection ucon = imageUrl.openConnection();
+    InputStream is = ucon.getInputStream();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int read = 0;
+    while ((read = is.read(buffer, 0, buffer.length)) != -1) {
+        baos.write(buffer, 0, read);
+    }
+    baos.flush();
+          final WritableMap map = Arguments.createMap();
+
+        try {
+                  map.putString("base64", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+                  promise.resolve(map);
+              } catch (Exception e) {
+                  map.putString("base64", "COULD_NOT_FETCH");
+                  promise.reject("COULD_NOT_FETCH", map.toString());
+              }
+      
+    
+} catch (Exception e) {
+    final WritableMap map = Arguments.createMap();
+    map.putString("error", "COULD_NOT_FETCH");
+                  promise.reject("COULD_NOT_FETCH", map.toString());
+    // Log.d("Error", e.toString());
+}
+    
+
+}
+//base64 function ends here
 
 }
