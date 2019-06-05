@@ -23,8 +23,13 @@ import java.io.InputStream;
 import android.database.DatabaseUtils;
 import java.net.URLConnection;
 import android.provider.ContactsContract.PhoneLookup;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.content.ComponentName;
+import android.util.Log;
+import com.facebook.react.bridge.ActivityEventListener;
 public class RNAccountManagerModule extends ReactContextBaseJavaModule {
-
   private final ReactApplicationContext reactContext;
 
   public RNAccountManagerModule(ReactApplicationContext reactContext) {
@@ -36,18 +41,28 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   public String getName() {
     return "RNAccountManager";
   }
+   //for paym
+  //  @Override
+  //  protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+  //      // Check which request it is that we're responding to
+  //      if (requestCode == 103) {
+  //        Log.d("paytm", "staret activity success: "+resultCode);
+  //          // Make sure the request was successful
+           
+  //      }
+  //  }
   @ReactMethod
-    public void getAccounts(final Promise promise) {
-        AccountManager am = AccountManager.get(this.reactContext);
-      Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
-        if (acc.length > 0){
-            String s = "";
-            for (int i=0; i<acc.length; i++){
-                s += acc[i] + "\n";
-            }
-            final WritableMap map = Arguments.createMap();
+  public void getAccounts(final Promise promise) {
+    AccountManager am = AccountManager.get(this.reactContext);
+    Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
+    if (acc.length > 0){
+      String s = "";
+      for (int i=0; i<acc.length; i++){
+        s += acc[i] + "\n";
+      }
+      final WritableMap map = Arguments.createMap();
 
-        try {
+    try {
                             map.putString("account", s);
                             
                             promise.resolve(map);
@@ -55,21 +70,50 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             map.putString("account", "COULD_NOT_FETCH");
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
-    }
   }
+  }
+  @ReactMethod
+  public void openPaytmApp(String mobileNo,String amount) {
+    final WritableMap map = Arguments.createMap();
+
+    try {
+      Bundle bundle  = new Bundle();
+      bundle.putString("transaction_amount", amount);
+      bundle.putString("transaction_mobile_email", mobileNo);
+      bundle.putBoolean("isMobile Number Editable", false);
+      bundle.putBoolean("is Amount Editable", true);
+      Intent startPaytm = new Intent();
+      startPaytm.setComponent(new ComponentName("net.one97.paytm", "net.one97.paytm.AJRJarvisSplash")); 
+      startPaytm.putExtra("paymentmode", 1);
+      startPaytm.putExtra("bill", bundle);
+      getCurrentActivity().startActivity(startPaytm);
+      Log.d("paytm", "staretd activity: ");
+      //todo:maybe in later stage we can handle on activiyresult
+      // map.putString("account", s);
+        
+        // promise.resolve(map);
+    } catch (Exception e) {
+      Log.d("paytm", "staret activity exception: "+e);
+        // map.putString("account", "COULD_NOT_FETCH");
+        // promise.reject("COULD_NOT_FETCH", map.toString());
+    }
+  
+  }
+ 
+
 
   @ReactMethod
-    public void checkAccounts(final Promise promise) {
-        AccountManager am = AccountManager.get(this.reactContext);
-      Account [] acc = am.getAccounts();//am.getAccountsByType("com.google");
-        if (acc.length > 0){
-            String s = "";
-            for (int i=0; i<acc.length; i++){
-                s += acc[i] + "\n";
-            }
-            final WritableMap map = Arguments.createMap();
+  public void checkAccounts(final Promise promise) {
+    AccountManager am = AccountManager.get(this.reactContext);
+    Account [] acc = am.getAccounts();//am.getAccountsByType("com.google");
+    if (acc.length > 0){
+      String s = "";
+      for (int i=0; i<acc.length; i++){
+        s += acc[i] + "\n";
+      }
+      final WritableMap map = Arguments.createMap();
 
-        try {
+    try {
                             map.putString("account", s);
                             
                             promise.resolve(map);
@@ -77,7 +121,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             map.putString("account", "COULD_NOT_FETCH");
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
-    }
+  }
   }
 
   
