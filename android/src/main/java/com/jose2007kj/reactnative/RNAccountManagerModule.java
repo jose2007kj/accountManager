@@ -28,7 +28,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.content.ComponentName;
 import android.util.Log;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import com.facebook.react.bridge.ActivityEventListener;
+import android.provider.Telephony;
+
 public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
 
@@ -52,17 +56,17 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   //      }
   //  }
   @ReactMethod
-  public void getAccounts(final Promise promise) {
-    AccountManager am = AccountManager.get(this.reactContext);
-    Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
-    if (acc.length > 0){
-      String s = "";
-      for (int i=0; i<acc.length; i++){
-        s += acc[i] + "\n";
-      }
-      final WritableMap map = Arguments.createMap();
+	public void getAccounts(final Promise promise) {
+		AccountManager am = AccountManager.get(this.reactContext);
+	  Account [] acc = am.getAccountsByType("com.google");//am.getAccounts();//
+		if (acc.length > 0){
+			String s = "";
+			for (int i=0; i<acc.length; i++){
+				s += acc[i] + "\n";
+			}
+			final WritableMap map = Arguments.createMap();
 
-    try {
+		try {
                             map.putString("account", s);
                             
                             promise.resolve(map);
@@ -70,11 +74,35 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             map.putString("account", "COULD_NOT_FETCH");
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
-  }
+	}
   }
   @ReactMethod
-  public void openPaytmApp(String mobileNo,String amount) {
-    final WritableMap map = Arguments.createMap();
+  public void sendSms(String mobileNo,String message){
+    try{
+      Intent sendIntent;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        String defaultSmsPackageName = Telephony.Sms.getDefaultSmsPackage(reactContext);
+        sendIntent = new Intent(Intent.ACTION_SEND);
+        if (defaultSmsPackageName != null){
+            sendIntent.setPackage(defaultSmsPackageName);
+        }
+        sendIntent.setType("text/plain");
+      }else {
+        sendIntent = new Intent(Intent.ACTION_VIEW);
+        sendIntent.setType("vnd.android-dir/mms-sms");
+      }
+      sendIntent.putExtra("sms_body", message);
+      sendIntent.putExtra("exit_on_sent", true);
+      sendIntent.putExtra("address", mobileNo);
+      reactContext.startActivity(sendIntent);
+      
+    }catch(Exception e){
+      Log.d("sms ", "sms error: "+e.toString());
+    }
+  }
+  @ReactMethod
+	public void openPaytmApp(String mobileNo,String amount) {
+	  final WritableMap map = Arguments.createMap();
 
     try {
       Bundle bundle  = new Bundle();
@@ -97,23 +125,23 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
         // map.putString("account", "COULD_NOT_FETCH");
         // promise.reject("COULD_NOT_FETCH", map.toString());
     }
-  
+	
   }
  
 
 
   @ReactMethod
-  public void checkAccounts(final Promise promise) {
-    AccountManager am = AccountManager.get(this.reactContext);
-    Account [] acc = am.getAccounts();//am.getAccountsByType("com.google");
-    if (acc.length > 0){
-      String s = "";
-      for (int i=0; i<acc.length; i++){
-        s += acc[i] + "\n";
-      }
-      final WritableMap map = Arguments.createMap();
+	public void checkAccounts(final Promise promise) {
+		AccountManager am = AccountManager.get(this.reactContext);
+	  Account [] acc = am.getAccounts();//am.getAccountsByType("com.google");
+		if (acc.length > 0){
+			String s = "";
+			for (int i=0; i<acc.length; i++){
+				s += acc[i] + "\n";
+			}
+			final WritableMap map = Arguments.createMap();
 
-    try {
+		try {
                             map.putString("account", s);
                             
                             promise.resolve(map);
@@ -121,7 +149,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             map.putString("account", "COULD_NOT_FETCH");
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
-  }
+	}
   }
 
   
