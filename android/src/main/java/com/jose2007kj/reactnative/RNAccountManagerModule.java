@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.telephony.TelephonyManager;
+import android.content.Context;
 public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
 
@@ -88,6 +90,18 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
                             promise.reject("COULD_NOT_FETCH", map.toString());
                         }
   }
+  }
+  @ReactMethod
+  public void getPhoneNumber(final Promise promise){
+    TelephonyManager telephonyManager = (TelephonyManager) reactContext.getSystemService(Context.TELEPHONY_SERVICE);
+    final WritableMap map = Arguments.createMap();
+    try{
+        map.putString("numbers",telephonyManager.getLine1Number());
+        promise.resolve(map);
+    }catch(Exception e){
+        map.putString("numbers", "COULD_NOT_FETCH");
+        promise.reject("COULD_NOT_FETCH", map.toString());
+    }
   }
   @ReactMethod
   public void sendSms(String mobileNo,String message){
@@ -165,7 +179,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   }
   }
   @ReactMethod void getTimeStamp(final Promise promise){
-
+        Log.d("contact sync", "recently updated function contacts time stamp: ");
         final WritableMap map = Arguments.createMap();
     try{
         String ts = String.valueOf(System.currentTimeMillis());
@@ -178,7 +192,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
   }
   @ReactMethod
   public void getRecentlyUpdatedConacts(String lastUpdate,final Promise promise){
-
+      Log.d("contact sync", "recently updated function contacts time stamp: "+lastUpdate);
       final WritableMap map = Arguments.createMap();
       try{
       ContentResolver contentResolver = this.reactContext.getContentResolver();
@@ -243,6 +257,7 @@ public class RNAccountManagerModule extends ReactContextBaseJavaModule {
       }catch(Exception e){
           map.putString("timestamp",e.toString());
           promise.reject("failed",map.toString());
+          Log.d("contact sync", "recently updated function contacts time stamp: "+e);
       }
   }
   @ReactMethod
@@ -389,3 +404,4 @@ private static WritableArray convertJsonToArray(JSONArray jsonArray) throws JSON
 }
 
 }
+
